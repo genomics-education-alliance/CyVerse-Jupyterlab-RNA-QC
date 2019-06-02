@@ -39,7 +39,6 @@ RUN python3 -m pip install\
  bash_kernel
 RUN python3 -m bash_kernel.install
 
-
 USER jovyan
 
 # install foundational jupyter lab
@@ -65,9 +64,6 @@ RUN ln -s /opt/conda/pkgs/*/bin/* /bin; exit 0
 RUN ln -s /opt/conda/pkgs/*/lib/* /usr/lib; exit 0
 #
 #
-#
-
-
 # install jupyter hub and extra doodads
 RUN jupyter lab --version \
     && jupyter labextension install @jupyterlab/hub-extension@0.12.0 \
@@ -83,5 +79,19 @@ RUN pip install jupyterlab_irods==2.0.1 \
     && jupyter labextension install ijab@2.0.1 \
     && jupyter labextension enable jupyterlab_html
 
+
+USER root
+RUN useradd -p $(openssl passwd -1 -salt xyz 'gea_user') -m -d /home/gea_user -s /bin/bash gea_user
+RUN usermod -a -G sudo gea_user
+#RUN cp -r /home/jovyan/* /home/gea_user/
+#RUN rm -rf /home/jovyan
+#RUN chown -R gea_user /home/gea_user
+
+
+USER gea_user
+RUN chmod -R 776 /home/gea_user
+
+
+
 ENTRYPOINT ["jupyter"]
-CMD ["lab", "--no-browser"]
+CMD ["lab", "--no-browser", "--allow-root"]
