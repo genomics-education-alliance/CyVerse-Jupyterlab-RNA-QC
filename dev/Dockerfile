@@ -10,12 +10,12 @@ LABEL maintainer="Genomics Education Alliance"
 LABEL maintainer_email="genomicseducationalliance@gmail.com"
 LABEL version="1.0"
 #
-#
+USER root
 #
 # Un-minimize the image to get back Ubuntu
 # goodies for teaching Linux/bash (e.g. man files, etc)
 # this makes the container big
-RUN apt-get update && apt-get upgrade -y && \
+RUN apt-get update && apt-get upgrade -y --fix-missing && \
 (echo y | DEBIAN_FRONTEND=noninteractive sh -x /usr/local/sbin/unminimize)
 RUN apt update -y && apt upgrade -y && apt-get install -y --fix-missing\
  software-properties-common\
@@ -84,7 +84,7 @@ RUN python3 -m bash_kernel.install
 #
 # Add the GEA user
 RUN useradd -p $(openssl passwd -1 -salt xyz 'gea_user') -m -d /home/gea_user -s /bin/bash gea_user
-RUN usermod -a -G sudo gea_user
+RUN usermod -a -G sudo root gea_user
 RUN echo "gea_user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 #
 #
@@ -119,15 +119,12 @@ RUN pip3 install jupyterlab==0.35.6
 #
 #
 #
-#
-#
-#
 RUN jupyter-labextension install @jupyterlab/hub-extension@0.12.0 \
                                     @jupyter-widgets/jupyterlab-manager@0.38.1 \
-                                    jupyterlab_bokeh@0.6.3 \
-                                    @mflevine/jupyterlab_html \
-                                    @jupyterlab/fasta-extension \
-                                    jupyterlab-spreadsheet
+#                                    jupyterlab_bokeh@0.6.3 \
+                                    @mflevine/jupyterlab_html
+#                                    @jupyterlab/fasta-extension \
+#                                    jupyterlab-spreadsheet
 #
 #
 # Install the irods plugin for jupyter lab
@@ -137,12 +134,16 @@ RUN pip3 install jupyterlab_irods==2.0.1 \
      && jupyter-labextension enable jupyterlab_html
 #
 #
+#more config stuff
+RUN npm cache clean && npm init -y && sudo npm install -g npm
+RUN npm install --save core-js@^3 && jupyter lab build
 # Configure shell
 #
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh && echo "SHELL=/bin/bash" >> /etc/environment
 #
 #
 # Switch to GEA user
+COPY ./jupyter_notebook_config.json /opt/conda/etc/jupyter/jupyter_notebook_config.json
 COPY ./jupyter_notebook_config.py /home/gea_user/.jupyter/jupyter_notebook_config.py
 COPY ./.bashrc /home/gea_user/.bashrc
 RUN chown -R gea_user:gea_user /home/gea_user/.jupyter
@@ -151,4 +152,4 @@ USER gea_user
 #
 # Define entry point and startup commands
 ENTRYPOINT ["jupyter"]
-CMD ["lab", "--no-browser", "--ip=0.0.0.0"]
+CMD ["lab", "--no-browser", "--ip=0.0.0.0", "--allow-root", "--NotebookApp.token=''", "--NotebookApp.password=''"]

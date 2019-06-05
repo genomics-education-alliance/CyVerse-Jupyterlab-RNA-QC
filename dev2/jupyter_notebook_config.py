@@ -407,13 +407,13 @@ c.NotebookApp.token =''
 #c.LabApp.override_theme_url = ''
 
 ## The directory for user settings.
-c.LabApp.user_settings_dir = '/home/gea_user/.jupyter/lab/user-settings'
+#c.LabApp.user_settings_dir = '/home/gea_user/.jupyter/lab/user-settings'
 
 ## Whether to serve the app in watch mode
 #c.LabApp.watch = False
 
 ## The directory for workspaces
-c.LabApp.workspaces_dir = '/home/gea_user/.jupyter/lab/workspaces'
+#c.LabApp.workspaces_dir = '/home/gea_user/.jupyter/lab/workspaces'
 
 #------------------------------------------------------------------------------
 # ConnectionFileMixin(LoggingConfigurable) configuration
@@ -566,7 +566,7 @@ c.LabApp.workspaces_dir = '/home/gea_user/.jupyter/lab/workspaces'
 #c.Session.unpacker = 'json'
 
 ## Username for the Session. Default is your system username.
-c.Session.username = 'gea_user'
+#c.Session.username = 'username'
 
 #------------------------------------------------------------------------------
 # MultiKernelManager(LoggingConfigurable) configuration
